@@ -13,8 +13,6 @@ import {
   mdiViewModule,
   mdiBullhorn,
 } from "@mdi/js";
-import * as chartConfig from "@/Components/Charts/chart.config.js";
-import LineChart from "@/Components/Charts/LineChart.vue";
 import SectionMain from "@/Components/SectionMain.vue";
 import CardBoxWidget from "@/Components/CardBoxWidget.vue";
 import CardBox from "@/Components/CardBox.vue";
@@ -34,46 +32,14 @@ const props = defineProps({
     default: {},
   },
 });
-
-const chartData = ref(null);
-
-const fillChartData = () => {
-  chartData.value = chartConfig.sampleChartData();
-};
-
-onMounted(() => {
-  fillChartData();
-});
 </script>
 
 <template>
   <HeadLogo title="Inicio" />
   <LayoutAuthenticated>
     <SectionMain>
-      <SectionTitleLineWithButton :icon="mdiChartTimelineVariant" title="Descripción general" main>
-      </SectionTitleLineWithButton>
-
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-6">
-        <CardBoxWidget trend="12% anual" trend-type="up" color="text-emerald-500" :icon="mdiAccountMultiple"
-          number="2000" label="Clientes" />
-
-        <CardBoxWidget trend="12% anual" trend-type="up" color="text-emerald-500" :icon="mdiAccountMultiple"
-          number="2000" label="Clientes" />
-        
-          <CardBoxWidget trend="12% anual" trend-type="up" color="text-emerald-500" :icon="mdiAccountMultiple"
-          number="2000" label="Clientes" />
-      </div>
-
-      <SectionTitleLineWithButton :icon="mdiChartPie" title="Trends overview">
-        <BaseButton :icon="mdiReload" color="whiteDark" @click="fillChartData" />
-      </SectionTitleLineWithButton>
-
-      <CardBox class="mb-6">
-        <div v-if="chartData">
-          <line-chart :data="chartData" class="h-96" />
-        </div>
-      </CardBox>
-
+      Dashboard
+      <h1 class="text-black font-[1]">holaaaaaaaaaaa</h1>
     </SectionMain>
   </LayoutAuthenticated>
 </template>

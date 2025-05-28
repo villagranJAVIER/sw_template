@@ -2,7 +2,6 @@
 import BaseButton from "@/Components/BaseButton.vue";
 import BaseButtons from "@/Components/BaseButtons.vue";
 import NavLink from "@/Components/NavLink.vue";
-import { Button, Toggle } from "flowbite-vue";
 import { Link, usePage } from '@inertiajs/vue3';
 import { useStyleStore } from "@/stores/style.js";
 import { ref } from 'vue';

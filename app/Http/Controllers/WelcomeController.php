@@ -20,34 +20,8 @@ class WelcomeController extends Controller
 
     public function welcome(Request $request): Response
     {
-        return Inertia::render("{$this->source}Home/Index", [
+        return Inertia::render("Welcome", [
             'title'   => 'Bienvenido',
-            'routeName' => $this->routeName,
-            'canLogin' => Route::has('login'),
-            'canRegister' => Route::has('register'),
-        ]);
-    }
-
-    public function committee()
-    {
-        return Inertia::render("{$this->source}Committee/Index", [
-            'title'   => 'Comité',
-            'routeName' => $this->routeName,
-        ]);
-    }
-
-    public function place()
-    {
-        return Inertia::render("{$this->source}Place/Index", [
-            'title'   => 'Lugar',
-            'routeName' => $this->routeName,
-        ]);
-    }
-
-    public function program()
-    {
-        return Inertia::render("{$this->source}Program/Index", [
-            'title'   => 'Programa',
             'routeName' => $this->routeName,
         ]);
     }

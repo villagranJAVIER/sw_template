@@ -19,7 +19,6 @@ import Pagination from "@/Shared/Pagination.vue";
 import { reactive, ref, provide, watch } from "vue";
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/css/index.css";
-import { Inertia } from "@inertiajs/inertia";
 import Dropdown from "@/Components/DropdownTable.vue";
 import debounce from "lodash/debounce";
 import HeadLogo from "@/Components/HeadLogo.vue";

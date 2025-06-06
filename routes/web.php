@@ -1,27 +1,13 @@
 <?php
 
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ArticleReviewController;
-use App\Http\Controllers\AuthorController;
-use App\Http\Controllers\CallController;
-use App\Http\Controllers\CriterionController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\InstitutionController;
-use App\Http\Controllers\KnowledgeAreaController;
-use App\Http\Controllers\KnowledgeSubAreaController;
 use App\Http\Controllers\ModuleController;
-use App\Http\Controllers\PaymentVoucherController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WelcomeController;
-use App\Models\Module;
-use App\Models\User;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------

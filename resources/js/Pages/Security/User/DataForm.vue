@@ -13,7 +13,6 @@ import { useForm } from "@inertiajs/vue3";
 import { computed, inject, reactive, ref, watch } from "vue";
 import FormField from "@/Components/FormField.vue";
 import FormControl from "@/Components/FormControl.vue";
-import "vue-select/dist/vue-select.css";
 import BaseButton from "@/Components/BaseButton.vue";
 import Select from '@/Components/Select.vue';
 import axios from "axios";

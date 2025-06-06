@@ -1,23 +1,25 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue';
-import tailwindcss from '@tailwindcss/vite'
-import vueDevTools from 'vite-plugin-vue-devtools'
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
+import vueDevTools from "vite-plugin-vue-devtools";
 
 export default defineConfig({
     server: {
-        host: 'sw_template.test',
+        host: "sw_template.test",
         port: 5174,
         hmr: {
-            host: 'sw_template.test',
+            host: "sw_template.test",
         },
         cors: true,
     },
     plugins: [
         tailwindcss(),
-        vueDevTools(),
+        vueDevTools({
+            appendTo: "resources/js/app.js",
+        }),
         laravel({
-            input: 'resources/js/app.js',
+            input: "resources/js/app.js",
             refresh: true,
         }),
         vue({

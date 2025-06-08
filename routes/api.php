@@ -28,4 +28,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // });
 
 Route::get('file/serve/{file}', [FileController::class, 'serveFile'])->name('file.serve')->middleware('signed');
-Route::get('get-curp/{curp}', [UserController::class, 'getCurp'])->name('user.getCurp');

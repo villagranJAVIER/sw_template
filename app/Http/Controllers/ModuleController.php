@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Module;
 use App\Http\Requests\StoreModuleRequest;
 use App\Http\Requests\UpdateModuleRequest;
-
+use App\Traits\Filterable;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\Inertia;
-use Illuminate\Http\RedirectResponse;
 
 class ModuleController extends Controller
 {
+    use Filterable;
     private Module $model;
     private string $source;
     private string $routeName;
@@ -37,18 +37,14 @@ class ModuleController extends Controller
      */
     public function index(Request $request): Response
     {
-        $direction = $request->direction ?? 'desc';
-        $order = $request->order ?? 'created_at';
-
+        $filters = $this->getFiltersBase($request->query());
         $records = $this->model->query()->when($request->search, function ($query, $search) {
-            if ($search != '') {
-                $query->where('name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('description', 'LIKE', '%' . $search . '%');
-            }
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%');
         });
 
-        $records = $records->orderBy($order, $direction)->paginate(8)->withQueryString()->through(
-            fn ($module) => [
+        $records = $records->orderBy($filters->order, $filters->direction)->paginate(8)->withQueryString()->through(
+            fn($module) => [
                 'id' => $module->id,
                 'name' => $module->name,
                 'description' => $module->description,
@@ -60,8 +56,7 @@ class ModuleController extends Controller
             'modules'   =>  $records,
             'title'     => 'Gestión de Módulos',
             'routeName' => $this->routeName,
-            'search'    => $request->search ?? '',
-            'direction' => $direction
+            'filters'   => $filters
         ]);
     }
 
@@ -99,9 +94,9 @@ class ModuleController extends Controller
     public function edit(Module $module)
     {
         return Inertia::render("{$this->source}Edit", [
-            'title'          => 'Editar Módulos',
-            'routeName'      => $this->routeName,
-            'module' => $module
+            'title'     => 'Editar Módulos',
+            'routeName' => $this->routeName,
+            'module'    => $module
         ]);
     }
 

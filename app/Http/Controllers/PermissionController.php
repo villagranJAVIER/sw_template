@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
 use App\Models\Module;
+use App\Traits\Filterable;
 use Spatie\Permission\Models\Permission;
 use Inertia\Response;
 use Inertia\Inertia;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 
 class PermissionController extends Controller
 {
+    use Filterable;
     protected string $routeName;
     protected string $source;
     protected string $module = 'permission';
@@ -34,18 +36,14 @@ class PermissionController extends Controller
 
     public function index(Request $request): Response
     {
-        $direction = $request->direction ?? 'desc';
-        $order = $request->order ?? 'created_at';
-
+        $filters = $this->getFiltersBase($request->query());
         $records = $this->model->query()->when($request->search, function ($query, $search) {
-            if ($search != '') {
-                $query->where('name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('description', 'LIKE', '%' . $search . '%')
-                    ->orWhere('module_key', 'LIKE', '%' . $search . '%');
-            }
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%')
+                ->orWhere('module_key', 'LIKE', '%' . $search . '%');
         });
 
-        $records = $records->orderBy($order, $direction)->paginate(8)->withQueryString()->through(
+        $records = $records->orderBy($filters->order, $filters->direction)->paginate(8)->withQueryString()->through(
             fn($permission) => [
                 'id' => $permission->id,
                 'name' => $permission->name,
@@ -55,11 +53,10 @@ class PermissionController extends Controller
         );
 
         return Inertia::render("{$this->source}Index", [
-            'title'          => 'Gestión de Permisos',
-            'records'        => $records,
-            'routeName'      => $this->routeName,
-            'search'         => $request->search ?? '',
-            'direction'     => $direction
+            'title'         => 'Gestión de Permisos',
+            'records'       => $records,
+            'routeName'     => $this->routeName,
+            'filters'       => $filters
         ]);
     }
 
@@ -71,9 +68,9 @@ class PermissionController extends Controller
     public function create()
     {
         return Inertia::render("{$this->source}Create", [
-            'title' => 'Agregar Permisos',
+            'title'     => 'Agregar Permisos',
             'routeName' => $this->routeName,
-            'modules' => Module::orderBy('id')->get(),
+            'modules'   => Module::orderBy('id')->get(),
         ]);
     }
 
@@ -98,10 +95,10 @@ class PermissionController extends Controller
     public function edit(Permission $permission): Response
     {
         return Inertia::render("{$this->source}Edit", [
-            'title'          => 'Editar Permisos',
-            'routeName'      => $this->routeName,
-            'modules' => Module::orderBy('id')->get(),
-            'record' => $permission,
+            'title'         => 'Editar Permisos',
+            'routeName'     => $this->routeName,
+            'modules'       => Module::orderBy('id')->get(),
+            'record'        => $permission,
         ]);
     }
     /**

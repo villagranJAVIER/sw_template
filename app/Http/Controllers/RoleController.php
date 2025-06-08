@@ -6,13 +6,16 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Models\Module;
+use App\Traits\Filterable;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Cache;
+
 class RoleController extends Controller
 {
+    use Filterable;
     protected string $routeName;
     protected string $source;
     protected string $module = 'role';
@@ -33,19 +36,14 @@ class RoleController extends Controller
      */
     public function index(Request $request): Response
     {
-        $direction = $request->direction ?? 'desc';
-        $order = $request->order ?? 'created_at';
-
+        $filters = $this->getFiltersBase($request->query());
         $records = $this->model->query()->when($request->search, function ($query, $search) {
-            if ($search != '') {
-
-                $query->where('name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('description', 'LIKE', '%' . $search . '%');
-            }
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('description', 'LIKE', '%' . $search . '%');
         });
 
-        $records = $records->orderBy($order, $direction)->paginate(8)->withQueryString()->through(
-            fn ($zone) => [
+        $records = $records->orderBy($filters->order, $filters->direction)->paginate(8)->withQueryString()->through(
+            fn($zone) => [
                 'id' => $zone->id,
                 'name' => $zone->name,
                 'description' => $zone->description
@@ -53,11 +51,10 @@ class RoleController extends Controller
         );
 
         return Inertia::render("{$this->source}Index", [
-            'title'          => 'Gestión de Roles',
-            'records'        => $records,
-            'routeName'      => $this->routeName,
-            'search'         => $request->search ?? '',
-            'direction'     => $direction
+            'title'         => 'Gestión de Roles',
+            'records'       => $records,
+            'routeName'     => $this->routeName,
+            'filters'       => $filters
         ]);
     }
 

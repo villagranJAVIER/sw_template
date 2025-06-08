@@ -20,6 +20,7 @@ import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import Checkbox from "@/Components/Checkbox.vue";
 
 const props = defineProps({
     name: 'DataForm',
@@ -28,7 +29,6 @@ const props = defineProps({
 
 const form = inject("form");
 const propsData = inject("propsData");
-const isLoading = ref(false)
 
 const checkedRole = (role) => {
     return form.roles.includes(role.id);
@@ -43,49 +43,9 @@ const toggleRole = (role) => {
     }
 };
 
-
-const getCurp = () => {
-    isLoading.value = true;
-    axios.get(route(`user.getCurp`, form.curp.toUpperCase()))
-        .then((response) => {
-            isLoading.value = false;
-            const data = response.data.dataCurp;
-            form.name = data.nombres.toUpperCase() + ' ' + data.apellidoPaterno.toUpperCase() + ' ' + data.apellidoMaterno.toUpperCase()
-        }).catch(function (error) {
-            if (error.response) {
-                if (error.response.status == 500) {
-                    Swal.fire({
-                        title: "CURP Incorrecta!",
-                        text: "La CURP ingresada no es valida, intente nuevamente",
-                        icon: "info",
-                        confirmButtonColor: "#3085d6",
-                        confirmButtonText: "Ok!",
-                    });
-                }
-            }
-            form.reset('name')
-            isLoading.value = false
-        })
-};
-
 </script>
 
 <template>
-    <div class="vl-parent">
-        <loading v-model:active="isLoading" :can-cancel="false" :is-full-page="true" />
-    </div>
-    <div class="md:w-1/2 mb-5">
-        <label class="font-bold">CURP:</label>
-        <div class="md:flex md:space-x-1 mb-1 mt-2">
-            <div class="md:w-full max-lg:mb-5">
-                <FormControl placeholder="Ingresa CURP" v-model="form.curp" maxlength="18" />
-            </div>
-            <div class="max-lg:mb-5 my-auto">
-                <BaseButton class="w-full" label="Buscar CURP" color="info" :icon="mdiMagnify" @click="getCurp()" />
-            </div>
-        </div>
-        <JetInputError class="mb-5" :message="form.errors.curp" />
-    </div>
     <div class="md:flex md:space-x-4 mb-5">
         <div class="md:w-1/2 max-lg:mb-5">
             <FormField label="Nombre del usuario:" :required="true" :error="form.errors.name">
@@ -133,7 +93,6 @@ const getCurp = () => {
                             <div
                                 class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
                             </div>
-
                         </label>
                     </td>
                 </tr>

@@ -22,6 +22,8 @@ import "vue-loading-overlay/dist/css/index.css";
 import Dropdown from "@/Components/DropdownTable.vue";
 import debounce from "lodash/debounce";
 import HeadLogo from "@/Components/HeadLogo.vue";
+import { useFilters } from "@/Hooks/useFilters";
+import SearchBar from "@/Components/SearchBar.vue";
 
 const props = defineProps({
     name: "Index",
@@ -38,54 +40,11 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    search: { type: String, required: true },
-    direction: { type: String, required: true },
-    profiles: {
-        type: Object,
-        default: {},
-        required: true,
-    },
-    profile: {
-        required: true,
-    },
+    filters: { type: Object, required: true },
 });
 
-const search = ref(props.search);
-const profile = ref(props.profile);
 const isLoading = ref(false);
-const state = reactive({
-    filters: {
-        search: search,
-        order: props.users.order ?? "created_at",
-        direction: props.direction,
-        profile: profile ?? "",
-    },
-});
-
-const filterSearch = () => {
-    router.get(
-        route(`${props.routeName}index`, state.filters, {
-            replace: true,
-        })
-    );
-};
-
-const cleanFilters = () => {
-    isLoading.value = true;
-    router.get(route(`${props.routeName}index`));
-};
-
-const filterBy = (order, direction) => {
-    state.filters.order = order;
-    state.filters.direction = direction;
-    isLoading.value = true;
-    router.get(route(`${props.routeName}index`, state.filters));
-};
-
-const filtrar = () => {
-    isLoading.value = true;
-    router.get(route(`${props.routeName}index`, state.filters));
-};
+const { filters, sortByColumn, clearFilters, applyFilters } = useFilters(props.filters, props.routeName, isLoading);
 
 const opts = [
     {
@@ -105,9 +64,6 @@ const opts = [
         ],
     },
 ];
-
-provide("filterBy", filterBy);
-
 </script>
 
 <template>
@@ -123,25 +79,9 @@ provide("filterBy", filterBy);
         <NotificationBar v-if="$page.props.flash.error" color="danger" :icon="mdiInformation" :outline="false">
         </NotificationBar>
 
-        <form @submit.prevent="filterSearch" class="w-full mb-5">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="flex w-full md:w-1/2 mr-1 my-4">
-                    <input type="search" id="search-dropdown"
-                        class="block pr-10 md:h-11 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-l-lg md:border-l-gray-300 border-l-gray-300 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
-                        placeholder="Ingresa un parametro de busqueda" v-model="search" />
-                    <BaseButton class="relative z-30 right-0 h-11 rounded-none" @click="filterSearch" :icon="mdiMagnify"
-                        color="info" title="Buscar" />
-                    <BaseButton class=" relative right-0 h-11 rounded-l-none rounded-r-lg" @click="cleanFilters"
-                        :icon="mdiBroom" color="lightDark" title="Limpiar filtro" />
-                </div>
+        <SearchBar @apply-filters="applyFilters" @clear-filters="clearFilters" v-model:search="filters.search"
+            v-model:rows="filters.rows" :routeName="routeName" title="usuario" />
 
-                <BaseButtons>
-                    <BaseButton :routeName="`${routeName}create`" color="info" :icon="mdiPlus" label="Agregar usuario"
-                        class="w-full" />
-                </BaseButtons>
-            </div>
-        </form>
-        
         <CardBox v-if="users.data.length > 0">
             <table>
                 <thead>
@@ -149,10 +89,10 @@ provide("filterBy", filterBy);
                         <th />
 
                         <th>
-                            <Dropdown title="Nombre" :options="opts" />
+                            <Dropdown @sort-by-column="sortByColumn" title="Nombre" :options="opts" />
                         </th>
                         <th>
-                            <Dropdown title="Email" :options="opts" />
+                            <Dropdown @sort-by-column="sortByColumn" title="Email" :options="opts" />
                         </th>
 
                         <th class="text-left">
@@ -178,7 +118,6 @@ provide("filterBy", filterBy);
                                 <path
                                     d="M8.5 2.687c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z" />
                             </svg>
-                            <!-- <img :src="'/storage/photos/'+item.photo" alt=""> -->
                         </td>
 
                         <td data-label="Nombre">

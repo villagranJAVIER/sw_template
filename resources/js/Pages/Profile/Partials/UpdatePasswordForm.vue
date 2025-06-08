@@ -113,7 +113,7 @@ const passwordRating = computed(() => {
 
             <div class="flex items-center gap-4">
                 <BaseButton title="Guardar" @click="updatePassword" :icon="mdiContentSave" color="success"
-                    label="Guardar" />
+                    label="Guardar" :processing="form.processing" />
 
                 <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
                     leave-active-class="transition ease-in-out" leave-to-class="opacity-0">

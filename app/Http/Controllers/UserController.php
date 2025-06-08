@@ -11,6 +11,7 @@ use App\Models\Module;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
+use App\Traits\Filterable;
 use Inertia\Response;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
@@ -25,12 +26,13 @@ use function Laravel\Prompts\select;
 
 class UserController extends Controller
 {
+    use Filterable;
     protected string $routeName;
     protected string $source;
     protected string $module = 'user';
     protected User $model;
     private string $storage_path = 'public/photos/';
-    
+
     public function __construct()
     {
         $this->routeName = "user.";
@@ -47,35 +49,15 @@ class UserController extends Controller
      */
     public function index(Request $request): Response
     {
-        $direction = '';
-
-        if ($request->has('direction'))
-            $direction = $request->direction;
-        else
-            $direction = 'desc';
-
-        $order = $request->has('order') ? $request->order : 'created_at';
-
-        $records = $this->model->with('roles');
-
-        $profile = $request->has('profile') ? $request->profile : null;
-        $records = $records->orderBy($order, $direction);
-
-        if ($profile) {
-            $records = $records->when($profile ?? null, function ($query) use ($profile) {
-                $query->join('model_has_roles as mhs', 'users.id', '=', 'mhs.model_id');
-                $query->where('mhs.role_id', $profile);
-            });
-        }
+        $filters = $this->getFiltersBase($request->query());
+        $records = $this->model->with('roles')->orderBy($filters->order, $filters->direction);
 
         $records = $records->when($request->search, function ($query, $search) {
-            if ($search != '') {
-                $query->where('name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('email', 'LIKE', '%' . $search . '%')
-                    ->orWhereHas('roles', function ($query) use ($search) {
-                        $query->where('name', 'LIKE', '%' . $search . '%');
-                    });
-            }
+            $query->where('name', 'LIKE', '%' . $search . '%')
+                ->orWhere('email', 'LIKE', '%' . $search . '%')
+                ->orWhereHas('roles', function ($query) use ($search) {
+                    $query->where('name', 'LIKE', '%' . $search . '%');
+                });
         });
 
         $records = $records->paginate(8)->withQueryString()->through(
@@ -92,9 +74,7 @@ class UserController extends Controller
             'users'     => $records,
             'profiles'  => Role::get(['id', 'name']),
             'routeName' => $this->routeName,
-            'search'    => $request->search ?? '',
-            'direction' => $direction,
-            'profile'   => $profile
+            'filters'   => $filters
         ]);
     }
 
@@ -179,23 +159,5 @@ class UserController extends Controller
     {
         $user->delete();
         return redirect()->route('user.index')->with('success', 'Usuario eliminado con éxito');
-    }
-
-    public function getCurp($request)
-    {
-        if (ApiUser::where('curp', $request)->exists()) {
-            $records = ApiUser::where('curp', $request)->first(); //si existe el curp guarda los campos en records
-        } else {
-            $request = Http::withToken('ea4d72f1-e7f8-483f-9d88-cef904cf272d')->post("https://apimarket.mx/api/renapo/grupo/valida-curp", ['curp' => $request])['data'];
-
-            ApiUser::create([
-                "curp" =>  $request['curp'],
-                "nombres" => $request['nombres'],
-                "apellidoPaterno" => $request['apellidoPaterno'],
-                "apellidoMaterno" =>  $request['apellidoMaterno'],
-            ]);
-            $records = ApiUser::where('curp', $request['curp'])->first();
-        }
-        return response(['dataCurp' => $records], 200);
     }
 }

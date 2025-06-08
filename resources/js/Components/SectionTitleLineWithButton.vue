@@ -15,30 +15,25 @@ defineProps({
     required: true,
   },
   main: Boolean,
+  routeBack: {
+    type: [String, Object],
+    default: null,
+  }
 });
 
 const hasSlot = computed(() => useSlots().default);
 </script>
 
 <template>
-  <section
-    :class="{ 'pt-6': !main }"
-    class="mb-6 flex items-center justify-between"
-  >
+  <section :class="{ 'pt-6': !main }" class="mb-6 flex items-center justify-between">
     <div class="flex items-center justify-start">
-      <IconRounded
-        v-if="icon && main"
-        :icon="icon"
-        color="light"
-        class="mr-3"
-        bg
-      />
+      <IconRounded v-if="icon && main" :icon="icon" color="light" class="mr-3" bg />
       <BaseIcon v-else-if="icon" :path="icon" class="mr-2" size="20" />
       <h1 :class="main ? 'text-3xl' : 'text-2xl'" class="leading-tight">
         {{ title }}
       </h1>
     </div>
-    <slot v-if="hasSlot" />
+    <BaseButton v-if="routeBack" class="md:w-auto w-full" :icon="mdiClose" color="lightDark" :route-name="routeBack" />
     <!-- <BaseButton v-else :icon="mdiClose" color="whiteDark" routeName="dashboard" /> -->
     <!-- <BaseButton v-else :icon="mdiCog" color="whiteDark" /> -->
   </section>
